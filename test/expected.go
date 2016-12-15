@@ -1,6 +1,6 @@
 package test
 
-type ActualJson struct {
+type ExpectedJson struct {
 	StringField string `json:"stringField"`
 	IntField    int `json:"intField"`
 	StringArray []string `json:"stringArray"`

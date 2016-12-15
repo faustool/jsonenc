@@ -11,27 +11,44 @@ import (
 func TestEnc(t *testing.T) {
 
 	buffer := bytes.NewBufferString("")
+
 	enc := NewEncoder(buffer)
-
 	enc.WriteStartObject()
-
-	enc.WriteNameValueString("stringField", "value")
+	enc.WriteNameValueString("stringField", "my string field")
 	enc.WriteNameValueInt("intField", 10)
+	enc.WriteStartArrayWithName("stringArray")
+	enc.WriteString("value 1")
+	enc.WriteString("value 2")
+	enc.WriteEndArray()
+	enc.WriteStartArrayWithName("intArray")
+	enc.WriteInt(1)
+	enc.WriteInt(2)
+	enc.WriteInt(3)
+	enc.WriteEndArray()
+	enc.WriteStartArrayWithName("objectArray")
+	enc.WriteStartObject()
+	enc.WriteNameValueString("field", "object 1")
+	enc.WriteEndObject()
+	enc.WriteStartObject()
+	enc.WriteNameValueString("field", "object 2")
+	enc.WriteEndObject()
 
-	expected := string(buffer.Bytes())
+	actual := string(buffer.Bytes())
 
-	actualJson := test.ActualJson{}
-	actualJson.StringField = "my string field"
-	actualJson.IntField = 10
-	actualJson.StringArray = []string{"value 1", "value 2"}
-	actualJson.IntArray = []int{1, 2, 3}
-	actualJson.ObjectArray = []test.Object{test.Object{Field:"object 1"}, test.Object{Field:"object 2"}}
+	expectedJson := test.ExpectedJson{
+		StringField: "my string field",
+		IntField: 10,
+		StringArray: []string{"value 1", "value 2"},
+		IntArray: []int{1, 2, 3},
+		ObjectArray:[]test.Object{
+			{Field:"object 1"},
+			{Field:"object 2"}}}
 
-	b, err := json.Marshal(actualJson)
-	if (err != null) {
+	b, err := json.Marshal(expectedJson)
+	if (err != nil) {
 		t.Fatal(err)
 	}
-	actual := string(b)
+	expected := string(b)
 
 	assert.Equal(t, expected, actual)
 
