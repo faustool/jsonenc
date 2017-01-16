@@ -3,6 +3,14 @@ package jsonenc
 import (
 	"io"
 	"strconv"
+	"github.com/fausto/stack"
+)
+
+const (
+	NEW_PROPERTY = iota
+	NEXT_PROPERTY = iota
+	NEW_ARRAY_VALUE = iota
+	NEXT_ARRAY_VALUE = iota
 )
 
 type JsonEncoder interface {
@@ -27,68 +35,68 @@ type JsonEncoder interface {
 	WriteNameValueInt(name string, value int)
 
 	WriteInt(value int)
+
+	WriteComma()
 }
 
 type Encoder struct {
-	w                io.Writer
-	prependWithComma bool
-	writingArray     bool
+	w         io.Writer
+	state     stack.Stack
 }
 
 func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w: w}
-}
-
-func (enc *Encoder) writeCommaInsideArrayIfApplicable() {
-	if (enc.writingArray) {
-		enc.writeCommaIfApplicable()
-	}
-}
-
-func (enc *Encoder) writeCommaIfApplicable() {
-	if (enc.prependWithComma) {
-		enc.w.Write([]byte(","))
-	}
-	enc.prependWithComma = true
+	return &Encoder{w: w, state: stack.NewStack()}
 }
 
 func (enc *Encoder) WriteStartObject() {
-	enc.writeCommaInsideArrayIfApplicable()
 	enc.w.Write([]byte("{"))
-	enc.prependWithComma = false
+	enc.state.Push(NEW_PROPERTY)
 }
 
 func (enc *Encoder) WriteEndObject() {
 	enc.w.Write([]byte("}"))
-	enc.prependWithComma = true
+	enc.state.Pop()
 }
 
 func (enc *Encoder) WriteStartArray() {
 	enc.w.Write([]byte("["))
-	enc.prependWithComma = false
-	enc.writingArray = true
+	enc.state.Push(NEW_ARRAY_VALUE)
 }
 
 func (enc *Encoder) WriteEndArray() {
 	enc.w.Write([]byte("]"))
-	enc.prependWithComma = true
-	enc.writingArray = false
+	enc.state.Pop()
 }
 
 func (enc *Encoder) WriteString(value string) {
-	enc.writeCommaInsideArrayIfApplicable()
+	currentState, err := enc.state.Peek()
+	if (err == nil) {
+		if (currentState == NEW_ARRAY_VALUE) {
+			enc.state.Pop()
+			enc.state.Push(NEXT_ARRAY_VALUE)
+		} else {
+			enc.WriteComma()
+		}
+	}
 	enc.w.Write([]byte("\""))
 	enc.w.Write([]byte(value))
 	enc.w.Write([]byte("\""))
 }
 
 func (enc *Encoder) WriteInt(value int) {
-	enc.writeCommaInsideArrayIfApplicable()
 	enc.w.Write([]byte(strconv.Itoa(value)))
 }
 
 func (enc *Encoder) WriteName(name string) {
-	enc.writeCommaIfApplicable()
+	currentState, err := enc.state.Peek()
+	if (err == nil) {
+		if (currentState == NEW_PROPERTY) {
+			enc.state.Pop()
+			enc.state.Push(NEXT_PROPERTY)
+		} else {
+			enc.WriteComma()
+		}
+	}
 	enc.WriteString(name)
 	enc.w.Write([]byte(":"))
 }
@@ -111,4 +119,8 @@ func (enc *Encoder) WriteNameValueString(name string, value string) {
 func (enc *Encoder) WriteNameValueInt(name string, value int) {
 	enc.WriteName(name)
 	enc.WriteInt(value)
+}
+
+func (enc *Encoder) WriteComma() {
+	enc.w.Write([]byte(","))
 }
