@@ -45,7 +45,7 @@ type Stream struct {
 	state     stack.Stack
 }
 
-func NewEncoder(w io.Writer) *Stream {
+func NewStream(w io.Writer) *Stream {
 	return &Stream{w: w, state: stack.NewStack()}
 }
 
