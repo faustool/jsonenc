@@ -10,7 +10,7 @@ const (
 	NOT_FIRST = iota
 )
 
-type JsonEncoder interface {
+type JsonStream interface {
 	WriteStartObject()
 
 	WriteStartObjectWithName(name string)
@@ -37,101 +37,101 @@ type JsonEncoder interface {
 
 	writeString(value string)
 
-	prependComma();
+	prependComma()
 }
 
-type Encoder struct {
+type Stream struct {
 	w         io.Writer
 	state     stack.Stack
 }
 
-func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w: w, state: stack.NewStack()}
+func NewEncoder(w io.Writer) *Stream {
+	return &Stream{w: w, state: stack.NewStack()}
 }
 
-func (enc *Encoder) WriteStartObject() {
-	enc.prependComma()
-	enc.writeLiteral("{")
-	enc.state.Push(FIRST)
+func (stream *Stream) WriteStartObject() {
+	stream.prependComma()
+	stream.writeLiteral("{")
+	stream.state.Push(FIRST)
 }
 
-func (enc *Encoder) WriteStartObjectWithName(name string) {
-	enc.prependComma()
-	enc.writeName(name)
-	enc.writeLiteral("{")
-	enc.state.Push(FIRST)
+func (stream *Stream) WriteStartObjectWithName(name string) {
+	stream.prependComma()
+	stream.writeName(name)
+	stream.writeLiteral("{")
+	stream.state.Push(FIRST)
 }
 
-func (enc *Encoder) WriteEndObject() {
-	enc.writeLiteral("}")
-	enc.state.Pop()
-	enc.state.Push(NOT_FIRST)
+func (stream *Stream) WriteEndObject() {
+	stream.writeLiteral("}")
+	stream.state.Pop()
+	stream.state.Push(NOT_FIRST)
 }
 
-func (enc *Encoder) WriteStartArray() {
-	enc.prependComma()
-	enc.writeLiteral("[")
-	enc.state.Push(FIRST)
+func (stream *Stream) WriteStartArray() {
+	stream.prependComma()
+	stream.writeLiteral("[")
+	stream.state.Push(FIRST)
 }
 
-func (enc *Encoder) WriteStartArrayWithName(name string) {
-	enc.prependComma()
-	enc.writeName(name)
-	enc.writeLiteral("[")
-	enc.state.Push(FIRST)
+func (stream *Stream) WriteStartArrayWithName(name string) {
+	stream.prependComma()
+	stream.writeName(name)
+	stream.writeLiteral("[")
+	stream.state.Push(FIRST)
 }
 
-func (enc *Encoder) WriteEndArray() {
-	enc.writeLiteral("]")
-	enc.state.Pop()
-	enc.state.Push(NOT_FIRST)
+func (stream *Stream) WriteEndArray() {
+	stream.writeLiteral("]")
+	stream.state.Pop()
+	stream.state.Push(NOT_FIRST)
 }
 
-func (enc *Encoder) WriteStringValue(value string) {
-	enc.prependComma()
-	enc.writeString(value)
-	enc.state.Push(NOT_FIRST)
+func (stream *Stream) WriteStringValue(value string) {
+	stream.prependComma()
+	stream.writeString(value)
+	stream.state.Push(NOT_FIRST)
 }
 
-func (enc *Encoder) WriteNameValueString(name string, value string) {
-	enc.prependComma()
-	enc.writeName(name)
-	enc.writeString(value)
-	enc.state.Push(NOT_FIRST)
+func (stream *Stream) WriteNameValueString(name string, value string) {
+	stream.prependComma()
+	stream.writeName(name)
+	stream.writeString(value)
+	stream.state.Push(NOT_FIRST)
 }
 
-func (enc *Encoder) WriteLiteralValue(value string) {
-	enc.prependComma()
-	enc.writeLiteral(value)
-	enc.state.Push(NOT_FIRST)
+func (stream *Stream) WriteLiteralValue(value string) {
+	stream.prependComma()
+	stream.writeLiteral(value)
+	stream.state.Push(NOT_FIRST)
 }
 
-func (enc *Encoder) WriteNameValueLiteral(name string, value string) {
-	enc.prependComma()
-	enc.writeName(name)
-	enc.writeLiteral(value);
-	enc.state.Push(NOT_FIRST)
+func (stream *Stream) WriteNameValueLiteral(name string, value string) {
+	stream.prependComma()
+	stream.writeName(name)
+	stream.writeLiteral(value)
+	stream.state.Push(NOT_FIRST)
 }
 
-func (enc *Encoder) writeName(name string) {
-	enc.writeString(name)
-	enc.writeLiteral(":")
+func (stream *Stream) writeName(name string) {
+	stream.writeString(name)
+	stream.writeLiteral(":")
 }
 
-func (enc *Encoder) writeLiteral(value string) {
-	enc.w.Write([]byte(value))
+func (stream *Stream) writeLiteral(value string) {
+	stream.w.Write([]byte(value))
 }
 
-func (enc *Encoder) writeString(value string) {
-	enc.w.Write([]byte("\""))
-	enc.w.Write([]byte(value))
-	enc.w.Write([]byte("\""))
+func (stream *Stream) writeString(value string) {
+	stream.w.Write([]byte("\""))
+	stream.w.Write([]byte(value))
+	stream.w.Write([]byte("\""))
 }
 
-func (enc *Encoder) prependComma() {
-	value, error := enc.state.Peek();
-	if (error == nil && value == NOT_FIRST) {
-		enc.w.Write([]byte(","))
+func (stream *Stream) prependComma() {
+	value, err := stream.state.Peek()
+	if err == nil && value == NOT_FIRST {
+		stream.w.Write([]byte(","))
 	}
 }
 

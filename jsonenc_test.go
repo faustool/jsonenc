@@ -47,7 +47,7 @@ func TestEnc(t *testing.T) {
 			{Field:"object 2"}}}
 
 	b, err := json.Marshal(expectedJson)
-	if (err != nil) {
+	if err != nil {
 		t.Fatal(err)
 	}
 	expected := string(b)
