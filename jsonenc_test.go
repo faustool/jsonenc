@@ -12,7 +12,7 @@ func TestEnc(t *testing.T) {
 
 	buffer := bytes.NewBufferString("")
 
-	stream := NewStream(buffer)
+	stream := NewJsonStream(buffer)
 	stream.WriteStartObject()
 	stream.WriteNameValueString("stringField", "my string field")
 	stream.WriteNameValueLiteral("intField", "10")
