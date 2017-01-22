@@ -1,4 +1,4 @@
-package jsonenc
+package jsonstream
 
 import (
 	"testing"

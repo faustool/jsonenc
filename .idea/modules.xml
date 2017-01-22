@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/jsonenc.iml" filepath="$PROJECT_DIR$/jsonenc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jsonstream.iml" filepath="$PROJECT_DIR$/jsonstream.iml" />
     </modules>
   </component>
 </project>
