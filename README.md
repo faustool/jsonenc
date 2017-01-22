@@ -1,4 +1,4 @@
-#jsonenc
+#jsonstream
 Go library to encode Json file using a Stream API. The intention when compared to the available Json Encoder is 
 to be extremely fast.
 
