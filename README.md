@@ -45,7 +45,7 @@ Arrays and inner objects can be created as follows:
 	stream.WriteEndObject() // json object
 ```
 
-Produces the Json below:
+The code above produces this Json object:
 ```json
 {  
    "my-object":{  
