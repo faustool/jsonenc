@@ -24,7 +24,7 @@ Will produce the Json object below:
 ```
 
 ##Example 2
-Arrays and inner objects can be created as the following code:
+Arrays and inner objects can be created as follows:
 ```golang
 	buffer := bytes.NewBufferString("")
 	stream := NewJsonStream(buffer)
