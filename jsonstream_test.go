@@ -4,7 +4,7 @@ import (
 	"testing"
 	"bytes"
 	"encoding/json"
-	"github.com/fausto/jsonenc/test"
+	"github.com/fausto/jsonstream/test"
 	"github.com/stretchr/testify/assert"
 	"fmt"
 )
