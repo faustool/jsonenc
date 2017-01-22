@@ -39,9 +39,9 @@ func TestEnc(t *testing.T) {
 
 	expectedJson := test.ExpectedJson{
 		StringField: "my string field",
-		IntField: 10,
+		IntField:    10,
 		StringArray: []string{"value 1", "value 2"},
-		IntArray: []int{1, 2, 3},
+		IntArray:    []int{1, 2, 3},
 		ObjectArray:[]test.Object{
 			{Field:"object 1"},
 			{Field:"object 2"}}}
@@ -54,4 +54,30 @@ func TestEnc(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 
+}
+
+func TestStream_WriteJsonContent(t *testing.T) {
+
+	buffer := bytes.NewBufferString("")
+
+	stream := NewJsonStream(buffer)
+	stream.WriteStartObject()
+	stream.WriteName("Object")
+	stream.WriteJsonContent("{\"name\":\"value\"}");
+	stream.WriteEndObject()
+
+	expectedString := "{\"Object\": {\"name\": \"value\"}}";
+	var expected map[string]interface{}
+	err := json.Unmarshal([]byte(expectedString), &expected)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var actual map[string]interface{}
+	err = json.Unmarshal([]byte(buffer.Bytes()), &actual)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expected, actual, ":(")
 }
